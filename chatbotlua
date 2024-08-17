@@ -1,0 +1,133 @@
+-- Custom OrionLib
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Guerric9018/OrionLibFixed/main/OrionLib.lua')))()
+
+-- Debug flag
+local debugMode = true -- Set this to true to enable debug mode
+
+-- Initializing
+_G.CHATBOTHUB_BLACKLISTED = {}
+_G.CHATBOTHUB_DISPLAYTOFULLNAME = {}
+_G.CHATBOTHUB_BLACKLISTEDCONTENT = {}
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local LocalPlayer = Players.LocalPlayer
+
+local alreadyRan = true
+
+local GUI = Instance.new("ScreenGui")
+GUI.Parent = game.CoreGui
+GUI.IgnoreGuiInset = true
+GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+if _G.CHATBOTHUB_RAN == nil then
+    alreadyRan = false
+	_G.CHATBOTHUB_TTA = false
+	_G.CHATBOTHUB_AI_MODEL = "Llama-8B ( default | 5 points )"
+	_G.CHATBOTHUB_ON = false
+	_G.CHATBOTHUB_CREDITS = 99999 -- Debug: Set high points to avoid depletion
+	_G.CHATBOTHUB_LOGIN = true -- Debug: Automatically set as logged in
+	_G.CHATBOTHUB_PREMIUM = true -- Debug: Enable premium features
+	_G.CHATBOTHUB_CUSTOMPROMPT = true -- Debug: Enable custom prompt by default
+	_G.CHATBOTHUB_CUSTOMPROMPTTEXT = "Just be a normal AI."
+    _G.CHATBOTHUB_WHITELIST = false
+	_G.CHATBOTHUB_BOTFORMAT = false
+	_G.CHATBOTHUB_TTA_RUNNING = true
+	_G.CHATBOTHUB_CHAT_BYPASS = false
+	_G.CHATBOTHUB_KEY = "default"
+	_G.CHATBOTHUB_LOADED = false
+	_G.CHATBOTHUB_DELAYED_CHAT = false
+	_G.CHATBOTHUB_REMINDING_STATE = false
+	_G.CHATBOTHUB_MaxDistance = 20
+	_G.CHATBOTHUB_Character = "Normal"
+	_G.CHATBOTHUB_BUFFER = false
+	_G.CHATBOTHUB_LANGUAGE = "en"
+end
+
+_G.CHATBOTHUB_RAN = true
+
+-- Chat system detection
+local msg = function() return end
+
+local success, textChannels = pcall(function()
+	return game:GetService("TextChatService").TextChannels
+end)
+
+if success then
+	print("New chat system detected")
+	msg = function(txt) game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(txt) end
+else
+	print("Old chat system detected")
+	msg = function(txt) game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(txt, "All") end
+end
+
+-- Anti chat logger (not for Celery)
+local function launchAntiLogger()
+	if (string.sub(identifyexecutor(), 1, 6)):lower() ~= "celery" then
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
+		OrionLib:MakeNotification{
+			Name = "Success",
+			Content = "Anti chat logger launched!",
+			Image = "rbxassetid://7115671043",
+			Time = 3
+		}
+	else
+		print("Celery detected, no anti-chat logger. Use with caution!")
+		OrionLib:MakeNotification{
+			Name = "Error",
+			Content = "You are using Celery, which does not support the anti chat logger.",
+			Image = "rbxassetid://16661795528",
+			Time = 3
+		}
+	end
+end
+
+-- Checks if the executor has writefile
+function writeFileAvailable()
+	if writefile then
+		return true
+	end
+end
+
+-- AI characters
+local AIs = {
+	"Furry",
+	"Roast",
+	"Waifu",
+	"Nerd",
+	"Christian",
+	"Robot",
+    "Brainrot",
+	"Normal"
+}
+
+-- AI models
+local AiModels = {
+	"Llama-8B ( default | 5 points )",
+	"Llama2-7B ( if default one fails | 5 points )",
+	"Llama-70B ( 50 points )"
+}
+
+-- Cost of each AI model
+local AiCost = {
+	["Llama-8B ( default | 5 points )"] = 5,
+	["Llama2-7B ( if default one fails | 5 points )"] = 5,
+	["Llama-70B ( 50 points )"] = 50
+}
+
+-- Languages
+local Languages = {
+	"en",
+	"fr",
+	"ru",
+	"es",
+	"br",
+	"ar"
+}
+
+local updateCredits = function() return end
+local updatePremium = function() return end
+
+-- Finds player's username and name from its username or displayname
+local findPlayerName = function(name)
+	for i,player in pairs(game.Players:GetChildre
