@@ -1,3 +1,4 @@
+
 -- Custom OrionLib
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Guerric9018/OrionLibFixed/main/OrionLib.lua')))()
 
@@ -240,7 +241,7 @@ end
 -- Login
 local function login(key)
 	key = HttpService:UrlEncode(key)
-	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="3670349320"&key=" .. key)
+	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="..(tostring(3670349320)) .. "&key=" .. key)
 	if response == "REFUSED" then
 		OrionLib:MakeNotification{
 			Name = "Error",
