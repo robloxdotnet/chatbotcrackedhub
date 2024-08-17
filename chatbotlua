@@ -1,9 +1,6 @@
 -- Custom OrionLib
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Guerric9018/OrionLibFixed/main/OrionLib.lua')))()
 
--- Debug Mode
-local debugMode = true
-
 -- Initialiazing
 _G.CHATBOTHUB_BLACKLISTED = {
 	--["Name"] = true,
@@ -33,16 +30,16 @@ if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_TTA = false
 	_G.CHATBOTHUB_AI_MODEL = "Llama-8B ( default | 5 points )"
 	_G.CHATBOTHUB_ON = false
-	_G.CHATBOTHUB_CREDITS = debugMode and 9999 or 0
-	_G.CHATBOTHUB_LOGIN = debugMode
-	_G.CHATBOTHUB_PREMIUM = debugMode
+	_G.CHATBOTHUB_CREDITS = 0
+	_G.CHATBOTHUB_LOGIN = false
+	_G.CHATBOTHUB_PREMIUM = false
 	_G.CHATBOTHUB_CUSTOMPROMPT = false
 	_G.CHATBOTHUB_CUSTOMPROMPTTEXT = "Just be a normal AI."
     _G.CHATBOTHUB_WHITELIST = false
 	_G.CHATBOTHUB_BOTFORMAT = false
 	_G.CHATBOTHUB_TTA_RUNNING = true
 	_G.CHATBOTHUB_CHAT_BYPASS = false
-	_G.CHATBOTHUB_KEY = debugMode and "debug-key" or "default"
+	_G.CHATBOTHUB_KEY = "default"
 	_G.CHATBOTHUB_LOADED = false
 	_G.CHATBOTHUB_DELAYED_CHAT = false
 	_G.CHATBOTHUB_REMINDING_STATE = false
@@ -57,6 +54,7 @@ _G.CHATBOTHUB_RAN = true
 -- Chat system detection
 local msg = function() return end
 
+
 local success, textChannels = pcall(function()
 	return game:GetService("TextChatService").TextChannels
 end)
@@ -69,7 +67,9 @@ else
 	msg = function(txt) game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(txt, "All") end
 end
 
+
 -- Anti chat logger (not for Celery)
+
 local function launchAntiLogger()
 	if (string.sub(identifyexecutor(), 1, 6)):lower() ~= "celery" then
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
@@ -133,23 +133,114 @@ local Languages = {
 	"ar"
 }
 
+
 local updateCredits = function() return end
 local updatePremium = function() return end
 
+
+-- Finds player's username and name from its username or displayname
+local findPlayerName = function(name)
+	for i,player in pairs(game.Players:GetChildren()) do
+		local prefix_length = #name
+		local name_prefix = player.Name:sub(1, prefix_length)
+		if(name_prefix == name) then
+			return player.Name, player.DisplayName
+		end
+	end
+	for i,player in pairs(game.Players:GetChildren()) do
+		local prefix_length = #name
+		local name_prefix = player.DisplayName:sub(1, prefix_length)
+		if(name_prefix == name) then
+			return player.Name, player.DisplayName
+		end
+	end
+	return nil, nil
+end
+
+-- Finds a player from its username or displayname
+local findPlayer = function(name)
+	for i,player in pairs(game.Players:GetChildren()) do
+		local prefix_length = #name
+		local name_prefix = player.Name:sub(1, prefix_length)
+		if(string.lower(name_prefix) == name) then
+			return player
+		end
+	end
+	for i,player in pairs(game.Players:GetChildren()) do
+		local prefix_length = #name
+		local name_prefix = player.DisplayName:sub(1, prefix_length)
+		if(string.lower(name_prefix) == name) then
+			return player
+		end
+	end
+	return nil, nil
+end
+
+-- Stops every ongoing action
+local function stopAction()
+	print(stopping)
+	_G.CHATBOTHUB_TTA_RUNNING = false
+	wait(1)
+	_G.CHATBOTHUB_TTA_RUNNING = true
+end
+
+-- TTA actioons
+local function jump()
+	LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+end
+
+local function spin()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local humanoidRootPart = LocalPlayer.Character.HumanoidRootPart
+        
+        while _G.CHATBOTHUB_TTA_RUNNING do
+            humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.Angles(0, math.rad(15), 0)
+            wait(0.1)
+        end
+	end
+end
+
+local function follow(player)
+	local TargetPlayer = findPlayer(player)
+	print("following " .. TargetPlayer.DisplayName)
+	_G.CHATBOTHUB_TARGET_PLAYER = TargetPlayer
+	while _G.CHATBOTHUB_TTA_RUNNING  and TargetPlayer == _G.CHATBOTHUB_TARGET_PLAYER do
+		LocalPlayer.Character:FindFirstChildOfClass('Humanoid'):MoveTo(TargetPlayer.Character.HumanoidRootPart.Position)
+		wait(0.05)
+	end
+end
+
+-- Does the actions depending on the AI response
+local function checkCommand(input)
+	input = string.lower(input)
+    if input == "stop" then 
+		stopAction()
+		return
+	end
+	if input == "jump" then 
+		jump()
+		return
+	end
+	if input == "spin" then 
+		spin()
+		return
+	end
+	if input == "null" then
+		return
+	end
+
+    local followPattern = "^follow%s+(.+)"
+    local match = string.match(input, followPattern)
+
+    if match then
+        follow(match)
+    end
+end
+
 -- Login
 local function login(key)
-	if debugMode then
-		OrionLib:MakeNotification{
-			Name = "Debug Mode",
-			Content = "Logged in with unlimited credits and premium!",
-			Image = "rbxassetid://7115671043",
-			Time = 3
-		}
-		return true
-	end
-	
 	key = HttpService:UrlEncode(key)
-	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="..(tostring(LocalPlayer.UserId)) .. "&key=" .. key)
+	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="3670349320"&key=" .. key)
 	if response == "REFUSED" then
 		OrionLib:MakeNotification{
 			Name = "Error",
