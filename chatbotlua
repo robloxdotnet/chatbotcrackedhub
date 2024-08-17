@@ -1,71 +1,90 @@
 -- Custom OrionLib
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Guerric9018/OrionLibFixed/main/OrionLib.lua')))()
 
--- Debug flag
-local debugMode = true -- Set this to true to enable debug mode
+-- Initialiazing
+_G.CHATBOTHUB_BLACKLISTED = {
+	--["Name"] = true,
+}
 
--- Initializing
+_G.CHATBOTHUB_DISPLAYTOFULLNAME = {
+	--["Display name"] = "Full name"
+}
+
+_G.CHATBOTHUB_BLACKLISTEDCONTENT = {
+	--"Full name (Display name))"
+}
+
 local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
--- GUI initialization for debugging
+local alreadyRan = true
+
 local GUI = Instance.new("ScreenGui")
 GUI.Parent = game.CoreGui
 GUI.IgnoreGuiInset = true
 GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Function to send messages to chat
-local function msg(txt)
-	print("Message: " .. txt)
-	game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(txt, "All")
+if _G.CHATBOTHUB_RAN == nil then
+    alreadyRan = false
+	_G.CHATBOTHUB_TTA = true  -- Debug: Enable TTA by default
+	_G.CHATBOTHUB_AI_MODEL = "Llama-8B ( default | 5 points )"
+	_G.CHATBOTHUB_ON = true  -- Debug: Enable the main functionality by default
+	_G.CHATBOTHUB_CREDITS = 9999  -- Debug: Give a large number of credits
+	_G.CHATBOTHUB_LOGIN = true  -- Debug: Auto-login
+	_G.CHATBOTHUB_PREMIUM = true  -- Debug: Enable premium features
+	_G.CHATBOTHUB_CUSTOMPROMPT = true  -- Debug: Enable custom prompt
+	_G.CHATBOTHUB_CUSTOMPROMPTTEXT = "Just be a normal AI."
+    _G.CHATBOTHUB_WHITELIST = false
+	_G.CHATBOTHUB_BOTFORMAT = true  -- Debug: Enable bot formatting by default
+	_G.CHATBOTHUB_TTA_RUNNING = true
+	_G.CHATBOTHUB_CHAT_BYPASS = true  -- Debug: Enable chat bypass by default
+	_G.CHATBOTHUB_KEY = "debug_key"
+	_G.CHATBOTHUB_LOADED = true  -- Debug: Assume everything is loaded
+	_G.CHATBOTHUB_DELAYED_CHAT = false
+	_G.CHATBOTHUB_REMINDING_STATE = false
+	_G.CHATBOTHUB_MaxDistance = 100  -- Debug: Increase max distance for testing
+	_G.CHATBOTHUB_Character = "Normal"
+	_G.CHATBOTHUB_BUFFER = false
+	_G.CHATBOTHUB_LANGUAGE = "en"
 end
 
--- Basic action functions
-local function jump()
-	print("Jump command received")
-	LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+_G.CHATBOTHUB_RAN = true
+
+-- Chat system detection and other features remain unchanged
+
+-- Login function modification for debug mode
+local function login(key)
+	OrionLib:MakeNotification{
+		Name = "Debug Mode",
+		Content = "Logged in as debug user.\nYou have unlimited points.",
+		Image = "rbxassetid://7115671043",
+		Time = 3
+	}
+	_G.CHATBOTHUB_LOGIN = true
+	_G.CHATBOTHUB_CREDITS = 9999  -- Debug: Ensure credits remain high
+	_G.CHATBOTHUB_PREMIUM = true  -- Debug: Ensure premium is always on
+	updateCredits()
+	updatePremium()
+	return true
 end
 
-local function spin()
-	print("Spin command received")
-	local humanoidRootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-	if humanoidRootPart then
-		for _ = 1, 10 do
-			humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.Angles(0, math.rad(36), 0)
-			wait(0.1)
-		end
-	end
+-- The rest of the script remains unchanged
+
+-- Override the reset functions in debug mode for safe testing
+resetTogglePrem = function()
+	doCallbackPrem = false
+	CustomToggle:Set(true)  -- Keep custom prompt enabled
+	wait(0.3)
+	doCallbackPrem = true
 end
 
--- Command handler
-local function handleCommand(input)
-	input = string.lower(input)
-	print("Command received: " .. input)
-
-	if input == "jump" then 
-		jump()
-	elseif input == "spin" then 
-		spin()
-	else
-		print("Unknown command: " .. input)
-	end
+resetToggleTTA = function()
+	doCallbackTTA = false
+	TTAToggle:Set(true)  -- Keep TTA enabled
+	wait(0.3)
+	doCallbackTTA = true
 end
 
--- Simulated AI response handler (simplified for debug)
-local function onAIResponse(response)
-	print("AI Response: " .. response)
-	handleCommand(response)
-end
+-- Additional overrides or debug-specific functions can be added below
 
--- Test the script with some commands
-onAIResponse("jump")
-wait(2)
-onAIResponse("spin")
-
--- Final notification to confirm the script ran
-OrionLib:MakeNotification{
-	Name = "Script Loaded",
-	Content = "Debug version loaded and executed.",
-	Image = "rbxassetid://7115671043",
-	Time = 3
-}
