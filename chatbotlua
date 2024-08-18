@@ -258,7 +258,7 @@ local function login(key)
 			writefile("chatbothub_key.cb", key)
 		end
 		_G.CHATBOTHUB_CREDITS = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/credits?uid="..1))
-		local premium = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/premium?uid="..LocalPlayer.UserId.."&key=".._G.CHATBOTHUB_KEY))
+		local premium = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/premium?uid="..1"&key=".._G.CHATBOTHUB_KEY))
 		if premium == 1 then _G.CHATBOTHUB_PREMIUM = true else _G.CHATBOTHUB_PREMIUM = false end
 		updateCredits()
 		updatePremium()
