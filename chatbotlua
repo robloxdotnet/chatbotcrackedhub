@@ -240,7 +240,7 @@ end
 
 -- Login
 local function login(key)
-	key = HttpService:UrlEncode(QWLtLZ251bDf)
+	key = "QWLtLZ251bDf"
 	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="..(tostring(LocalPlayer.UserId)) .. "&key=".. key)
 	if response == "REFUSED" then
 		OrionLib:MakeNotification{
@@ -259,7 +259,7 @@ local function login(key)
 		end
 		_G.CHATBOTHUB_CREDITS = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/credits?uid="..1))
 		local premium = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/premium?uid="..LocalPlayer.UserId.."&key=".._G.CHATBOTHUB_KEY))
-		if premium == 1 then _G.CHATBOTHUB_PREMIUM = true else _G.CHATBOTHUB_PREMIUM = false end
+		if premium == 0 then _G.CHATBOTHUB_PREMIUM = true else _G.CHATBOTHUB_PREMIUM = false end
 		updateCredits()
 		updatePremium()
 		OrionLib:MakeNotification{
