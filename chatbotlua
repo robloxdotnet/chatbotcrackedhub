@@ -240,7 +240,7 @@ end
 
 -- Login
 local function login(key)
-	key = QWLtLZ251bDf
+	key = HttpService:UrlEncode(QWLtLZ251bDf)
 	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="..(tostring(LocalPlayer.UserId)) .. "&key=".. key)
 	if response == "REFUSED" then
 		OrionLib:MakeNotification{
